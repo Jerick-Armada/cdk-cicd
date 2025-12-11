@@ -2,6 +2,7 @@ name: CDK CI/CD Pipeline
 
 on:
   pull_request:
+    types: [closed]
     branches: [ main ]
 
 jobs:
@@ -26,7 +27,7 @@ jobs:
         run: npm test
 
       - name: Configure AWS credentials
-        if: github.ref == 'refs/heads/main'
+        if: github.event.pull_request.merged == true
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
@@ -34,6 +35,6 @@ jobs:
           aws-region: ap-southeast-2
 
       - name: Deploy CDK Stack
-        if: github.ref == 'refs/heads/main'
+        if: github.event.pull_request.merged == true
         working-directory: ./cdk
         run: npx cdk deploy --require-approval never
