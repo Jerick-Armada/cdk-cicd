@@ -1,12 +1,14 @@
-name: CDK CI/CD Pipeline
+name: CDK Deploy on Merge
 
 on:
-  pull_request:
+  pull_request_target:
     types: [closed]
-    branches: [ main ]
+    branches: [main]
 
 jobs:
-  test-and-deploy:
+  deploy:
+    name: Deploy CDK Stack after Merge
+    if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
 
     steps:
@@ -22,12 +24,7 @@ jobs:
         working-directory: ./cdk
         run: npm ci
 
-      - name: Run tests
-        working-directory: ./cdk
-        run: npm test
-
       - name: Configure AWS credentials
-        if: github.event.pull_request.merged == true
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
@@ -35,6 +32,5 @@ jobs:
           aws-region: ap-southeast-2
 
       - name: Deploy CDK Stack
-        if: github.event.pull_request.merged == true
         working-directory: ./cdk
         run: npx cdk deploy --require-approval never
