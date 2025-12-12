@@ -1,0 +1,88 @@
+{
+  "info": {
+    "name": "UserAuthAPI",
+    "_postman_id": "auth-api-collection",
+    "description": "API Gateway + Cognito Authentication endpoints",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Signup",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"email\": \"{{email}}\",\n    \"password\": \"{{password}}\"\n}"
+        },
+        "url": {
+          "raw": "{{api_base_url}}/users/signup",
+          "host": ["{{api_base_url}}"],
+          "path": ["users", "signup"]
+        }
+      }
+    },
+    {
+      "name": "Confirm Email",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"email\": \"{{email}}\",\n    \"code\": \"{{confirmation_code}}\"\n}"
+        },
+        "url": {
+          "raw": "{{api_base_url}}/users/confirm-email",
+          "host": ["{{api_base_url}}"],
+          "path": ["users", "confirm-email"]
+        }
+      }
+    },
+    {
+      "name": "Signin",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"email\": \"{{email}}\",\n    \"password\": \"{{password}}\"\n}"
+        },
+        "url": {
+          "raw": "{{api_base_url}}/users/signin",
+          "host": ["{{api_base_url}}"],
+          "path": ["users", "signin"]
+        }
+      }
+    },
+    {
+      "name": "Resend Email",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"email\": \"{{email}}\"\n}"
+        },
+        "url": {
+          "raw": "{{api_base_url}}/users/resend-email",
+          "host": ["{{api_base_url}}"],
+          "path": ["users", "resend-email"]
+        }
+      }
+    }
+  ],
+  "variable": [
+    { "key": "api_base_url", "value": "https://YOUR_API_ID.execute-api.ap-southeast-2.amazonaws.com" },
+    { "key": "email", "value": "test@example.com" },
+    { "key": "password", "value": "TestPassword1" },
+    { "key": "confirmation_code", "value": "123456" }
+  ]
+}
