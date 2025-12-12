@@ -1,9 +1,19 @@
 #!/usr/bin/env node
-import * as cdk from 'aws-cdk-lib/core';
+import * as cdk from 'aws-cdk-lib';
 import { CdkCicdStack } from '../lib/cdk-cicd-stack';
+import * as dotenv from 'dotenv';
+
+dotenv.config();
 
 const app = new cdk.App();
-new CdkCicdStack(app, 'CdkCicdStack', {
+
+// Get environment variables
+const devName = process.env.DEV_NAME || 'local';
+const awsAccount = process.env.AWS_ACCOUNT_ID;
+const awsRegion = process.env.AWS_REGION || 'ap-southeast-2';
+
+new CdkCicdStack(app, `CdkCicdStack-${devName}`, {
+  env: { account: awsAccount, region: awsRegion },
   /* If you don't specify 'env', this stack will be environment-agnostic.
    * Account/Region-dependent features and context lookups will not work,
    * but a single synthesized template can be deployed anywhere. */

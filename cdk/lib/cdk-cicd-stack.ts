@@ -11,7 +11,13 @@ import * as integrations from 'aws-cdk-lib/aws-apigatewayv2-integrations';
 
 export class CdkCicdStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
-    super(scope, id, props);
+    super(scope, id, {
+      env: {
+        account: process.env.AWS_ACCOUNT_ID,
+        region: process.env.AWS_REGION,
+      },
+      ...props
+    });
 
     // ===== COGNITO USER POOL =====
     const userPool = new aws_cognito.UserPool(this, 'UserPool', {
