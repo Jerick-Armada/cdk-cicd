@@ -24,9 +24,8 @@ export const handler = async (event: any) => {
       Username: email,
     });
 
-    const x = await client.send(command);
+    await client.send(command);
 
-    console.log(x)
     return {
       statusCode: 200,
       body: JSON.stringify({ message: 'Verification email resent successfully.' }),
