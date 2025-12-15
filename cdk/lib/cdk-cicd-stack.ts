@@ -8,6 +8,7 @@ import {
 } from 'aws-cdk-lib';
 import * as path from 'path';
 import * as integrations from 'aws-cdk-lib/aws-apigatewayv2-integrations';
+import * as authorizers from 'aws-cdk-lib/aws-apigatewayv2-authorizers';
 
 export class CdkCicdStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
@@ -21,7 +22,7 @@ export class CdkCicdStack extends cdk.Stack {
 
     // ===== COGNITO USER POOL =====
     const userPool = new aws_cognito.UserPool(this, 'UserPool', {
-      userPoolName: 'UserServicePool',
+      userPoolName: `UserServicePool-${process.env.DEV_NAME}`,
       selfSignUpEnabled: true,
       signInAliases: {
         email: true,
@@ -94,11 +95,26 @@ export class CdkCicdStack extends cdk.Stack {
       },
     });
 
+    const profileLambda = new aws_lambda_nodejs.NodejsFunction(this, 'ProfileLambda', {
+      entry: path.join(__dirname, '../lambdas/users/profile.ts'),
+      handler: 'handler',
+      runtime: aws_lambda.Runtime.NODEJS_18_X,
+    });
+
 
     // Grant Lambdas permission to use Cognito
     userPool.grant(signupLambda, 'cognito-idp:SignUp', 'cognito-idp:AdminConfirmSignUp');
     userPool.grant(signinLambda, 'cognito-idp:InitiateAuth');
     userPool.grant(confirmEmailLambda, 'cognito-idp:ConfirmSignUp');
+
+    const authorizer = new authorizers.HttpUserPoolAuthorizer(
+      'CognitoUserPoolAuthorizer', // logical ID
+      userPool,
+      {
+        userPoolClients: [userPoolClient],
+        identitySource: ['$request.header.Authorization'], // optional, default is header
+      }
+    );
 
     // ===== HTTP API (v2) =====
     const httpApiGateway = new aws_apigatewayv2.HttpApi(this, 'UsersHttpApi', {
@@ -133,6 +149,13 @@ export class CdkCicdStack extends cdk.Stack {
       path: '/users/resend-email',
       methods: [aws_apigatewayv2.HttpMethod.POST],
       integration: new integrations.HttpLambdaIntegration('ResendEmailIntegration', resendEmailLambda),
+    });
+
+    httpApiGateway.addRoutes({
+      path: '/users/profile',
+      methods: [aws_apigatewayv2.HttpMethod.GET],
+      integration: new integrations.HttpLambdaIntegration('ProfileIntegration', profileLambda),
+      authorizer,
     });
 
     // ===== Outputs =====
